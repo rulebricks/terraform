@@ -1,0 +1,25 @@
+**/.terraform
+**/.terraform.lock.hcl
+**/terraform.tfstate
+**/terraform.tfstate.backup
+**/terraform.tfstate.lock.info
+**/terraform.tfvars
+**/terraform.tfvars.json
+
+.terraform
+.terraform.lock.hcl
+terraform.tfstate
+terraform.tfstate.backup
+terraform.tfstate.lock.info
+terraform.tfvars
+terraform.tfvars.json
+
+# CLI and IDE specific files
+.idea/
+.zed/
+.ropeproject/
+
+# Miscellaneous
+NOTES.md
+.rulebricks-state.yaml
+rulebricks.yaml
