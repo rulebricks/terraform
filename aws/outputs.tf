@@ -7,14 +7,19 @@ locals {
   })
 }
 
+output "cluster_security_group_id" {
+  description = "ID of the EKS cluster security group"
+  value       = module.eks.cluster_security_group_id
+}
+
 output "load_balancer_security_group_id" {
   description = "ID of the Load Balancer Security Group"
   value       = aws_security_group.load_balancer_sg.id
 }
 
 output "node_security_group_id" {
-  description = "ID of the Node Security Group"
-  value       = aws_security_group.node_group_sg.id
+  description = "ID of the EKS node shared security group"
+  value       = module.eks.node_security_group_id
 }
 
 output "kubeconfig" {
