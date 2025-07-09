@@ -1,23 +1,43 @@
-# Move outputs from main.tf to this file for consistency
+locals {
+  kubeconfig = ""  # GKE requires gcloud CLI for authentication
+}
+
+output "cluster_security_group_id" {
+  description = "ID of the GKE cluster security group (firewall rule)"
+  value       = google_compute_firewall.node_group_fw.id
+}
+
+output "load_balancer_security_group_id" {
+  description = "ID of the Load Balancer Security Group (firewall rule)"
+  value       = google_compute_firewall.load_balancer_fw.id
+}
+
+output "node_security_group_id" {
+  description = "ID of the GKE node security group (firewall rule)"
+  value       = google_compute_firewall.node_group_fw.id
+}
+
+output "kubeconfig" {
+  description = "Kubeconfig in YAML format"
+  value       = local.kubeconfig
+  sensitive   = true
+}
 
 output "cluster_name" {
   value = google_container_cluster.primary.name
 }
 
+output "cluster_endpoint" {
+  value = google_container_cluster.primary.endpoint
+}
+
+output "cluster_certificate_authority_data" {
+  description = "Base64 encoded certificate data required to communicate with the cluster"
+  value       = google_container_cluster.primary.master_auth[0].cluster_ca_certificate
+}
+
 output "region" {
   value = var.region
-}
-
-output "project_id" {
-  value = var.project_id
-}
-
-output "vpc_id" {
-  value = google_compute_network.vpc.id
-}
-
-output "subnet_id" {
-  value = google_compute_subnetwork.subnet.id
 }
 
 output "configure_kubectl" {
@@ -25,18 +45,17 @@ output "configure_kubectl" {
   value       = "gcloud container clusters get-credentials ${google_container_cluster.primary.name} --region ${var.region} --project ${var.project_id}"
 }
 
-output "cluster_endpoint" {
-  description = "The endpoint for the GKE cluster"
-  value       = google_container_cluster.primary.endpoint
+output "vpc_id" {
+  description = "The ID of the VPC"
+  value       = google_compute_network.vpc.id
 }
 
-output "zone" {
-  description = "The GCP zone where the cluster is deployed (if zonal)"
-  value       = var.zone != "" ? var.zone : null
+output "public_subnet_ids" {
+  description = "List of IDs of public subnets"
+  value       = [google_compute_subnetwork.public_subnet.id]
 }
 
-output "cluster_ca_certificate" {
-  description = "Base64 encoded public certificate that is the root of trust for the cluster"
-  value       = google_container_cluster.primary.master_auth[0].cluster_ca_certificate
-  sensitive   = true
+output "private_subnet_ids" {
+  description = "List of IDs of private subnets"
+  value       = [google_compute_subnetwork.private_subnet.id]
 }

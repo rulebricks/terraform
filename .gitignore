@@ -3,16 +3,14 @@
 **/terraform.tfstate
 **/terraform.tfstate.backup
 **/terraform.tfstate.lock.info
-**/terraform.tfvars
-**/terraform.tfvars.json
+**/tfplan
 
 .terraform
 .terraform.lock.hcl
 terraform.tfstate
 terraform.tfstate.backup
 terraform.tfstate.lock.info
-terraform.tfvars
-terraform.tfvars.json
+tfplan
 
 # CLI and IDE specific files
 .idea/

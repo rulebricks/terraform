@@ -1,23 +1,43 @@
-# Output the cluster name and kubeconfig
-output "kube_config" {
-  value     = azurerm_kubernetes_cluster.aks.kube_config_raw
-  sensitive = true
+locals {
+  kubeconfig = azurerm_kubernetes_cluster.aks.kube_config_raw
 }
 
-output "resource_group_name" {
-  value = azurerm_resource_group.rg.name
+output "cluster_security_group_id" {
+  description = "ID of the AKS cluster security group"
+  value       = azurerm_network_security_group.node_group_nsg.id
+}
+
+output "load_balancer_security_group_id" {
+  description = "ID of the Load Balancer Security Group"
+  value       = azurerm_network_security_group.load_balancer_nsg.id
+}
+
+output "node_security_group_id" {
+  description = "ID of the AKS node security group"
+  value       = azurerm_network_security_group.node_group_nsg.id
+}
+
+output "kubeconfig" {
+  description = "Kubeconfig in YAML format"
+  value       = local.kubeconfig
+  sensitive   = true
 }
 
 output "cluster_name" {
   value = azurerm_kubernetes_cluster.aks.name
 }
 
-output "vnet_id" {
-  value = azurerm_virtual_network.vnet.id
+output "cluster_endpoint" {
+  value = azurerm_kubernetes_cluster.aks.kube_config[0].host
 }
 
-output "subnet_id" {
-  value = azurerm_subnet.aks_subnet.id
+output "cluster_certificate_authority_data" {
+  description = "Base64 encoded certificate data required to communicate with the cluster"
+  value       = azurerm_kubernetes_cluster.aks.kube_config[0].cluster_ca_certificate
+}
+
+output "region" {
+  value = var.location
 }
 
 output "configure_kubectl" {
@@ -25,12 +45,17 @@ output "configure_kubectl" {
   value       = "az aks get-credentials --resource-group ${azurerm_resource_group.rg.name} --name ${azurerm_kubernetes_cluster.aks.name}"
 }
 
-output "location" {
-  description = "The Azure region where resources are deployed"
-  value       = azurerm_resource_group.rg.location
+output "vpc_id" {
+  description = "The ID of the VPC"
+  value       = azurerm_virtual_network.vnet.id
 }
 
-output "cluster_endpoint" {
-  description = "The endpoint for the AKS cluster"
-  value       = azurerm_kubernetes_cluster.aks.fqdn
+output "public_subnet_ids" {
+  description = "List of IDs of public subnets"
+  value       = [azurerm_subnet.public_subnet.id]
+}
+
+output "private_subnet_ids" {
+  description = "List of IDs of private subnets"
+  value       = [azurerm_subnet.private_subnet.id]
 }

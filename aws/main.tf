@@ -2,6 +2,11 @@ provider "aws" {
   region = var.region
 }
 
+# Local values for consistent references
+locals {
+  vpc_cidr = var.vpc_cidr != "" ? var.vpc_cidr : "10.0.0.0/16"
+}
+
 data "aws_availability_zones" "available" {
   state = "available"
   filter {
@@ -88,13 +93,16 @@ resource "aws_security_group" "node_group_sg" {
   }
 }
 
+# Create security group for RDS database
+
+
 # Create a VPC for the EKS cluster
 module "vpc" {
   source  = "terraform-aws-modules/vpc/aws"
   version = "5.5.0"
 
   name = "rulebricks-vpc"
-  cidr = var.vpc_cidr != "" ? var.vpc_cidr : "10.0.0.0/16"
+  cidr = local.vpc_cidr
 
   # Use first 3 available AZs (or all if less than 3)
   azs = slice(data.aws_availability_zones.available.names, 0, min(length(data.aws_availability_zones.available.names), 3))
@@ -127,6 +135,9 @@ module "vpc" {
     "kubernetes.io/role/internal-elb"           = "1"
   }
 }
+
+# Create RDS subnet group for database
+
 
 # Create an EKS cluster
 module "eks" {

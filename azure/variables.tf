@@ -3,38 +3,43 @@ variable "location" {
   default     = "East US"
 }
 
-variable "resource_group_name" {
-  description = "The name of the resource group."
-  default     = "rulebricks-rg"
-}
-
 variable "cluster_name" {
   description = "The name of the AKS cluster."
-  default     = "rulebricks-aks"
+  default     = "rulebricks-cluster"
 }
 
-variable "node_count" {
-  description = "The initial number of nodes in the default node pool."
-  default     = 2
+variable "node_group_name" {
+  description = "The name of the node pool."
+  default     = "rulebricks-node-group"
 }
 
 variable "vm_size" {
-  description = "The size of the VM instances."
-  default     = "Standard_D4s_v5"  # ARM-based instance
+  description = "VM size for the nodes."
+  default     = "Standard_D4ps_v5"  # ARM-based instance (Ampere Altra)
 }
 
-variable "min_count" {
-  description = "Minimum number of nodes for autoscaling."
+variable "node_count" {
+  description = "Desired number of worker nodes."
   default     = 1
 }
 
 variable "max_count" {
-  description = "Maximum number of nodes for autoscaling."
+  description = "Maximum number of worker nodes."
   default     = 4
 }
 
-variable "enable_auto_scaling" {
-  description = "Enable autoscaling for the node pool."
-  type        = bool
-  default     = true
+variable "min_count" {
+  description = "Minimum number of worker nodes."
+  default     = 1
+}
+
+variable "vnet_cidr" {
+  description = "Custom VNet CIDR block. If not specified, defaults to 10.0.0.0/16"
+  type        = string
+  default     = ""
+}
+
+variable "resource_group_name" {
+  description = "The name of the resource group."
+  default     = "rulebricks-rg"
 }

@@ -1,7 +1,3 @@
-variable "project_id" {
-  description = "The GCP project ID."
-}
-
 variable "region" {
   description = "The GCP region to deploy to."
   default     = "us-central1"
@@ -9,36 +5,47 @@ variable "region" {
 
 variable "cluster_name" {
   description = "The name of the GKE cluster."
-  default     = "rulebricks-gke"
+  default     = "rulebricks-cluster"
 }
 
-variable "initial_node_count" {
-  description = "The initial number of nodes in the node pool."
-  default     = 2
+variable "node_group_name" {
+  description = "The name of the node pool."
+  default     = "rulebricks-node-group"
 }
 
 variable "machine_type" {
   description = "The machine type of the nodes."
-  default     = "n2-standard-4"  # Default from CLI
+  default     = "t2a-standard-4"  # ARM-based instance (Ampere Altra)
 }
 
-variable "zone" {
-  description = "The GCP zone for the cluster."
-  default     = ""
-}
-
-variable "min_node_count" {
-  description = "Minimum number of nodes for autoscaling."
+variable "initial_node_count" {
+  description = "Desired number of worker nodes."
   default     = 1
 }
 
 variable "max_node_count" {
-  description = "Maximum number of nodes for autoscaling."
+  description = "Maximum number of worker nodes."
   default     = 4
 }
 
-variable "enable_autoscaling" {
-  description = "Enable autoscaling for the node pool."
-  type        = bool
-  default     = true
+variable "min_node_count" {
+  description = "Minimum number of worker nodes."
+  default     = 1
+}
+
+variable "vpc_cidr" {
+  description = "Custom VPC CIDR block. If not specified, defaults to 10.0.0.0/16"
+  type        = string
+  default     = ""
+}
+
+variable "project_id" {
+  description = "The GCP project ID."
+  type        = string
+}
+
+variable "zone" {
+  description = "The GCP zone for the cluster (optional, uses regional cluster if not specified)."
+  type        = string
+  default     = ""
 }
