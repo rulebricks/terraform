@@ -10,7 +10,7 @@ variable "cluster_name" {
 
 variable "node_group_name" {
   description = "The name of the node pool."
-  default     = "rulebricks-node-group"
+  default     = "rulebricks"
 }
 
 variable "vm_size" {

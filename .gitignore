@@ -1,15 +1,15 @@
 **/.terraform
 **/.terraform.lock.hcl
+**/.terraform.tfstate.lock.info
 **/terraform.tfstate
 **/terraform.tfstate.backup
-**/terraform.tfstate.lock.info
 **/tfplan
 
 .terraform
 .terraform.lock.hcl
+.terraform.tfstate.lock.info
 terraform.tfstate
 terraform.tfstate.backup
-terraform.tfstate.lock.info
 tfplan
 
 # CLI and IDE specific files

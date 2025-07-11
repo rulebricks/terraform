@@ -119,13 +119,12 @@ resource "azurerm_kubernetes_cluster" "aks" {
   kubernetes_version  = "1.30"
 
   default_node_pool {
-    name                = var.node_group_name
+    name                = "default"
     vm_size             = var.vm_size
     vnet_subnet_id      = azurerm_subnet.private_subnet.id
     auto_scaling_enabled = true
     min_count           = var.min_count
     max_count           = var.max_count
-    node_count          = var.node_count
     os_disk_size_gb     = 50
 
     node_labels = {
@@ -136,8 +135,8 @@ resource "azurerm_kubernetes_cluster" "aks" {
     tags = {
       "Environment"                                   = "dev"
       "Terraform"                                     = "true"
-      "k8s.io/cluster-autoscaler/enabled"             = "true"
-      "k8s.io/cluster-autoscaler/${var.cluster_name}" = "owned"
+      "k8s-cluster-autoscaler-enabled"                = "true"
+      "k8s-cluster-autoscaler-${var.cluster_name}"    = "owned"
     }
   }
 
@@ -200,26 +199,7 @@ provider "helm" {
   }
 }
 
-# Create default storage class
-resource "kubernetes_storage_class" "managed_premium" {
-  metadata {
-    name = "managed-premium"
-    annotations = {
-      "storageclass.kubernetes.io/is-default-class" = "true"
-    }
-  }
-
-  storage_provisioner    = "disk.csi.azure.com"
-  reclaim_policy         = "Delete"
-  volume_binding_mode    = "WaitForFirstConsumer"
-  allow_volume_expansion = true
-
-  parameters = {
-    storageaccounttype = "Premium_LRS"
-  }
-
-  depends_on = [azurerm_kubernetes_cluster.aks]
-}
+# AKS automatically creates default storage classes, no need to create our own
 
 # Deploy Cluster Autoscaler using Helm (although AKS has built-in autoscaling)
 resource "helm_release" "cluster_autoscaler" {

@@ -29,11 +29,14 @@ output "cluster_name" {
 
 output "cluster_endpoint" {
   value = azurerm_kubernetes_cluster.aks.kube_config[0].host
+  description = "Endpoint of the AKS cluster"
+  sensitive = true
 }
 
 output "cluster_certificate_authority_data" {
   description = "Base64 encoded certificate data required to communicate with the cluster"
   value       = azurerm_kubernetes_cluster.aks.kube_config[0].cluster_ca_certificate
+  sensitive   = true
 }
 
 output "region" {

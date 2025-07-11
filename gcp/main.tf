@@ -15,6 +15,10 @@ resource "google_compute_network" "vpc" {
   routing_mode            = "REGIONAL"
 
   description = "VPC for ${var.cluster_name} GKE cluster"
+
+  lifecycle {
+    ignore_changes = [description]
+  }
 }
 
 # Create public subnet for load balancers
@@ -143,25 +147,9 @@ resource "google_container_cluster" "primary" {
   logging_service    = "logging.googleapis.com/kubernetes"
   monitoring_service = "monitoring.googleapis.com/kubernetes"
 
-  # Cluster autoscaling configuration
+  # Disable cluster autoscaling - we use node pool autoscaling instead
   cluster_autoscaling {
-    enabled = true
-    resource_limits {
-      resource_type = "cpu"
-      minimum       = 1
-      maximum       = 100
-    }
-    resource_limits {
-      resource_type = "memory"
-      minimum       = 1
-      maximum       = 1000
-    }
-    auto_provisioning_defaults {
-      oauth_scopes = [
-        "https://www.googleapis.com/auth/cloud-platform"
-      ]
-      service_account = google_service_account.nodes.email
-    }
+    enabled = false
   }
 
   # Security and maintenance settings
@@ -192,9 +180,13 @@ resource "google_container_cluster" "primary" {
 
 # Service account for nodes
 resource "google_service_account" "nodes" {
-  account_id   = "${var.cluster_name}-nodes-sa"
+  account_id   = "rb-cluster-nodes"
   display_name = "Service Account for ${var.cluster_name} nodes"
   project      = var.project_id
+
+  lifecycle {
+    ignore_changes = [display_name]
+  }
 }
 
 # Grant necessary permissions to node service account
@@ -269,9 +261,13 @@ resource "google_container_node_pool" "primary_nodes" {
 
 # Service account for cluster autoscaler (workload identity)
 resource "google_service_account" "cluster_autoscaler" {
-  account_id   = "${var.cluster_name}-autoscaler-sa"
+  account_id   = "rb-cluster-autoscaler"
   display_name = "Cluster Autoscaler Service Account"
   project      = var.project_id
+
+  lifecycle {
+    ignore_changes = [display_name]
+  }
 }
 
 # Grant necessary permissions for cluster autoscaler
@@ -294,6 +290,10 @@ resource "google_service_account_iam_binding" "cluster_autoscaler_workload_ident
 
   members = [
     "serviceAccount:${var.project_id}.svc.id.goog[kube-system/cluster-autoscaler]"
+  ]
+
+  depends_on = [
+    google_container_node_pool.primary_nodes
   ]
 }
 
@@ -415,6 +415,32 @@ resource "helm_release" "cluster_autoscaler" {
   set {
     name  = "extraArgs.expander"
     value = "least-waste"
+  }
+
+  # Add ARM64 support
+  set {
+    name  = "nodeSelector.kubernetes\\.io/arch"
+    value = "arm64"
+  }
+
+  set {
+    name  = "tolerations[0].key"
+    value = "kubernetes.io/arch"
+  }
+
+  set {
+    name  = "tolerations[0].operator"
+    value = "Equal"
+  }
+
+  set {
+    name  = "tolerations[0].value"
+    value = "arm64"
+  }
+
+  set {
+    name  = "tolerations[0].effect"
+    value = "NoSchedule"
   }
 
   depends_on = [
